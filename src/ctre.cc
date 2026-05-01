@@ -1,7 +1,7 @@
 module;
 
 #ifdef _MSVC_LANG
-#pragma warning( disable : 5202 )
+#pragma warning(disable : 5202)
 #endif
 
 import std;
@@ -23,4 +23,5 @@ using std::uint64_t;
 using std::uint8_t;
 
 #include "ctre.hpp"
+
 #include "unicode-db.hpp"

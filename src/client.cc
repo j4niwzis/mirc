@@ -61,31 +61,30 @@ export struct kick : internal::comparable {
 
 }  // namespace client
 
-export using command_t = std::variant<
-    client::nick,
-    client::user,
-    client::pass,
-    client::join,
-    client::part,
-    client::priv_msg,
-    client::quit,
-    client::pong,
-    client::ping,
-    client::mode,
-    client::kick>;
+export using command_t = std::variant<client::nick,
+                                      client::user,
+                                      client::pass,
+                                      client::join,
+                                      client::part,
+                                      client::priv_msg,
+                                      client::quit,
+                                      client::pong,
+                                      client::ping,
+                                      client::mode,
+                                      client::kick>;
 
 }  // namespace mirc
 
-export template <>
+template <>
 struct std::formatter<mirc::client::nick> : formatter_base<"NICK {}"> {};
 
-export template <>
+template <>
 struct std::formatter<mirc::client::user> : formatter_base<"USER {} 0 * :{}"> {};
 
-export template <>
+template <>
 struct std::formatter<mirc::client::pass> : formatter_base<"PASS {}"> {};
 
-export template <>
+template <>
 struct std::formatter<mirc::client::join> : formatter_parse {
   constexpr auto format(const mirc::client::join& cmd, std::format_context& ctx) const {
     return cmd.key.empty() ? std::format_to(ctx.out(), "JOIN {}", cmd.channel)
@@ -93,7 +92,7 @@ struct std::formatter<mirc::client::join> : formatter_parse {
   }
 };
 
-export template <>
+template <>
 struct std::formatter<mirc::client::part> : formatter_parse {
   constexpr auto format(const mirc::client::part& cmd, std::format_context& ctx) const {
     return cmd.reason.empty() ? std::format_to(ctx.out(), "PART {}", cmd.channel)
@@ -101,33 +100,33 @@ struct std::formatter<mirc::client::part> : formatter_parse {
   }
 };
 
-export template <>
+template <>
 struct std::formatter<mirc::client::priv_msg> : formatter_base<"PRIVMSG {} :{}"> {};
 
-export template <>
+template <>
 struct std::formatter<mirc::client::quit> : formatter_parse {
   constexpr auto format(const mirc::client::quit& cmd, std::format_context& ctx) const {
-    return cmd.reason.empty() ? std::format_to(ctx.out(), "QUIT")
-                              : std::format_to(ctx.out(), "QUIT :{}", cmd.reason);
+    return cmd.reason.empty() ? std::format_to(ctx.out(), "QUIT") : std::format_to(ctx.out(), "QUIT :{}", cmd.reason);
   }
 };
 
-export template <>
+template <>
 struct std::formatter<mirc::client::pong> : formatter_base<"PONG {}"> {};
 
-export template <>
+template <>
 struct std::formatter<mirc::client::ping> : formatter_base<"PING {}"> {};
 
-export template <>
+template <>
 struct std::formatter<mirc::client::mode> : formatter_parse {
   constexpr auto format(const mirc::client::mode& cmd, std::format_context& ctx) const {
     auto out = std::format_to(ctx.out(), "MODE {} {}", cmd.target, cmd.modes);
-    for (auto arg : cmd.args) out = std::format_to(out, " {}", arg);
+    for(auto arg : cmd.args)
+      out = std::format_to(out, " {}", arg);
     return out;
   }
 };
 
-export template <>
+template <>
 struct std::formatter<mirc::client::kick> : formatter_parse {
   constexpr auto format(const mirc::client::kick& cmd, std::format_context& ctx) const {
     return cmd.reason.empty() ? std::format_to(ctx.out(), "KICK {} {}", cmd.channel, cmd.user)

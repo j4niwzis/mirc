@@ -62,19 +62,22 @@ export template <std::size_t N>
 struct static_string {
   char data[N]{};
   constexpr static_string(const char (&s)[N]) {
-    for (std::size_t i = 0; i < N; ++i) data[i] = s[i];
+    for(std::size_t i = 0; i < N; ++i)
+      data[i] = s[i];
   }
 };
 
 export struct formatter_parse {
-  constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context& ctx) {
+    return ctx.begin();
+  }
 };
 
 export template <static_string S>
 struct formatter_base : formatter_parse {
   template <typename T>
   constexpr auto format(const T& obj, std::format_context& ctx) const {
-    auto [...vs] = obj;
+    auto [... vs] = obj;
     return std::format_to(ctx.out(), S.data, vs...);
   }
 };
@@ -90,10 +93,11 @@ template <>
 struct std::formatter<mirc::message> : formatter_parse {
   constexpr auto format(const mirc::message& msg, std::format_context& ctx) const {
     auto out = ctx.out();
-    if (msg.prefix) out = std::format_to(out, ":{} ", msg.prefix->raw);
+    if(msg.prefix)
+      out = std::format_to(out, ":{} ", msg.prefix->raw);
     out = std::format_to(out, "{}", msg.command);
-    for (std::size_t i = 0; i < msg.params.size(); ++i) {
-      if (i + 1 == msg.params.size()) {
+    for(std::size_t i = 0; i < msg.params.size(); ++i) {
+      if(i + 1 == msg.params.size()) {
         out = std::format_to(out, " :{}", msg.params[i]);
       } else {
         out = std::format_to(out, " {}", msg.params[i]);
