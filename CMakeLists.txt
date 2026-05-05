@@ -12,7 +12,7 @@ set(CMAKE_CXX_MODULE_STD 1)
 # Note: update this to your new project's name and version
 project(
   mirc
-  VERSION 0.1.1
+  VERSION 0.2.0
   LANGUAGES CXX
 )
 
