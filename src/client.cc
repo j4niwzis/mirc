@@ -59,6 +59,13 @@ export struct kick : internal::comparable {
   std::string_view reason;
 };
 
+export struct webirc : internal::comparable {
+  std::string_view password;
+  std::string_view login;
+  std::string_view hostname;
+  std::string_view ip_address;
+};
+
 }  // namespace client
 
 export using command_t = std::variant<client::nick,
@@ -71,7 +78,8 @@ export using command_t = std::variant<client::nick,
                                       client::pong,
                                       client::ping,
                                       client::mode,
-                                      client::kick>;
+                                      client::kick,
+                                      client::webirc>;
 
 }  // namespace mirc
 
@@ -133,3 +141,6 @@ struct std::formatter<mirc::client::kick> : formatter_parse {
                               : std::format_to(ctx.out(), "KICK {} {} :{}", cmd.channel, cmd.user, cmd.reason);
   }
 };
+
+template <>
+struct std::formatter<mirc::client::webirc> : formatter_base<"WEBIRC {} {} {} {}"> {};
