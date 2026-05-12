@@ -99,8 +99,11 @@ export constexpr event_t to_event(const message& msg) {
     return make_struct<event::ping>(msg.params[0]);
   if(cmd == "PONG")
     return make_struct<event::pong>(msg.params[0]);
-  if(cmd == "PRIVMSG" && msg.prefix)
+  if(cmd == "PRIVMSG" && msg.prefix) {
+    if(msg.params.size() >= 2 && msg.params[1].starts_with("\001ACTION ") && msg.params[1].ends_with("\001"))
+      return make_struct<event::action>(*msg.prefix, msg.params[0], msg.params[1].substr(8, msg.params[1].size() - 9));
     return make_struct<event::priv_msg>(*msg.prefix, msg.params[0], msg.params[1]);
+  }
   if(cmd == "JOIN" && msg.prefix)
     return make_struct<event::join>(*msg.prefix, msg.params[0]);
   if(cmd == "PART" && msg.prefix)

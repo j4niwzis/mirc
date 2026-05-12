@@ -411,7 +411,8 @@ TEST(IrcEvent, PongFormatter) {
 }
 
 TEST(IrcEvent, NumericFormatter) {
-  event::numeric_t num{prefix{.raw = "server", .nick = "server", .user = "", .host = ""}, event::numeric::welcome{.target = "nick", .text = "Welcome"}};
+  event::numeric_t num{prefix{.raw = "server", .nick = "server", .user = "", .host = ""},
+                       event::numeric::welcome{.target = "nick", .text = "Welcome"}};
   EXPECT_EQ(std::format("{}", num), ":server 001 nick :Welcome");
 }
 
@@ -458,7 +459,7 @@ TEST(IrcEvent, NamReplyEvent) {
   EXPECT_EQ(nam->channel, "#channel");
   EXPECT_EQ(nam->names, "nick1 @nick2 +nick3");
   std::vector<std::string_view> nicks;
-  for (auto nick : nam->nick_views()) {
+  for(auto nick : nam->nick_views()) {
     nicks.push_back(nick);
   }
   ASSERT_EQ(nicks.size(), 3);
@@ -490,7 +491,7 @@ TEST(IrcEvent, WhoisChannelsEvent) {
   auto* wc = std::get_if<event::numeric::whois_channels>(&var);
   ASSERT_NE(wc, nullptr);
   std::vector<std::string_view> chans;
-  for (auto ch : wc->channel_views()) {
+  for(auto ch : wc->channel_views()) {
     chans.push_back(ch);
   }
   ASSERT_EQ(chans.size(), 3);
@@ -513,6 +514,40 @@ TEST(IrcEvent, IsupportEvent) {
   EXPECT_EQ(sup->tokens[0], "TOKEN1");
   EXPECT_EQ(sup->tokens[1], "TOKEN2");
   EXPECT_EQ(sup->tokens[2], "are supported by this server");
+}
+
+TEST(IrcEvent, ActionEvent) {
+  auto ev = parse_event(":nick!user@host PRIVMSG #channel :\001ACTION waves\001");
+  ASSERT_NE(ev, std::nullopt);
+  auto* act = std::get_if<event::action>(&*ev);
+  ASSERT_NE(act, nullptr);
+  EXPECT_EQ(act->prefix.nick, "nick");
+  EXPECT_EQ(act->target, "#channel");
+  EXPECT_EQ(act->text, "waves");
+}
+
+TEST(IrcEvent, ActionNotTriggeredForNormalPrivMsg) {
+  auto ev = parse_event(":nick!user@host PRIVMSG #channel :Hello");
+  ASSERT_NE(ev, std::nullopt);
+  auto* pm = std::get_if<event::priv_msg>(&*ev);
+  ASSERT_NE(pm, nullptr);
+  EXPECT_EQ(pm->text, "Hello");
+}
+
+TEST(IrcEvent, ActionFormatter) {
+  auto ev = parse_event(":nick!user@host PRIVMSG #channel :\001ACTION waves\001");
+  ASSERT_NE(ev, std::nullopt);
+  auto* act = std::get_if<event::action>(&*ev);
+  ASSERT_NE(act, nullptr);
+  EXPECT_EQ(std::format("{}", *act), ":nick!user@host PRIVMSG #channel :\001ACTION waves\001");
+}
+
+TEST(IrcEvent, ActionEquality) {
+  event::action a{.prefix = parse_prefix("nick"), .target = "#t", .text = "hi"};
+  event::action b{.prefix = parse_prefix("nick"), .target = "#t", .text = "hi"};
+  event::action c{.prefix = parse_prefix("nick"), .target = "#t", .text = "bye"};
+  EXPECT_EQ(a, b);
+  EXPECT_NE(a, c);
 }
 
 TEST(IrcEvent, UnknownNumericEvent) {

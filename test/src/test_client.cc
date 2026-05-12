@@ -187,3 +187,32 @@ TEST(IrcClientCommand, PrivMsgEmptyText) {
 TEST(IrcClientCommand, UserEmptyRealname) {
   EXPECT_EQ(std::format("{}", client::user{.username = "u", .realname = ""}), "USER u 0 * :");
 }
+
+TEST(IrcClientCommand, WebircFormat) {
+  EXPECT_EQ(std::format("{}", client::webirc{.password = "pass", .login = "login", .hostname = "host", .ip_address = "ip"}),
+            "WEBIRC pass login host ip");
+}
+
+TEST(IrcClientCommand, NamesFormat) {
+  EXPECT_EQ(std::format("{}", client::names{.channel = "#test"}), "NAMES #test");
+}
+
+TEST(IrcClientCommand, NamesEquality) {
+  client::names a{.channel = "#c"};
+  client::names b{.channel = "#c"};
+  client::names c{.channel = "#d"};
+  EXPECT_EQ(a, b);
+  EXPECT_NE(a, c);
+}
+
+TEST(IrcClientCommand, ActionFormat) {
+  EXPECT_EQ(std::format("{}", client::action{.target = "#test", .text = "waves"}), "PRIVMSG #test :\001ACTION waves\001");
+}
+
+TEST(IrcClientCommand, ActionEquality) {
+  client::action a{.target = "#t", .text = "hi"};
+  client::action b{.target = "#t", .text = "hi"};
+  client::action c{.target = "#t", .text = "bye"};
+  EXPECT_EQ(a, b);
+  EXPECT_NE(a, c);
+}

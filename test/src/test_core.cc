@@ -99,7 +99,8 @@ TEST(IrcCore, MessageFormatterMultipleParams) {
 }
 
 TEST(IrcCore, MessageFormatterFull) {
-  message msg{.prefix = prefix{.raw = "nick!user@host", .nick = "nick", .user = "user", .host = "host"}, .command = "PRIVMSG", .params = params{}};
+  message msg{
+      .prefix = prefix{.raw = "nick!user@host", .nick = "nick", .user = "user", .host = "host"}, .command = "PRIVMSG", .params = params{}};
   msg.params.values[0] = "#channel";
   msg.params.values[1] = "Hello world";
   msg.params.count = 2;

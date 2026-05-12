@@ -63,6 +63,12 @@ export struct kick : internal::comparable {
   std::string_view reason;
 };
 
+export struct action : internal::comparable {
+  prefix prefix;
+  std::string_view target;
+  std::string_view text;
+};
+
 namespace numeric {
 
 export struct welcome : internal::comparable {
@@ -393,6 +399,7 @@ export using event_t = std::variant<event::ping,
                                     event::nick,
                                     event::mode,
                                     event::kick,
+                                    event::action,
                                     event::numeric_t,
                                     event::unknown>;
 
@@ -454,6 +461,9 @@ struct std::formatter<mirc::event::kick> : formatter_parse {
                              : std::format_to(ctx.out(), "{} KICK {} {} :{}", ev.prefix, ev.channel, ev.user, ev.reason);
   }
 };
+
+template <>
+struct std::formatter<mirc::event::action> : formatter_base<"{} PRIVMSG {} :\001ACTION {}\001"> {};
 
 template <>
 struct std::formatter<mirc::event::numeric::welcome> : formatter_base<"001 {} :{}"> {};
